@@ -2,6 +2,8 @@ package validation
 
 import (
 	"golang.org/x/sync/errgroup"
+	"reflect"
+	"strings"
 )
 
 // Rule is the function type used by the validator to run against the given data
@@ -23,6 +25,50 @@ type Validator struct {
 func New() Validator {
 	validator := Validator{}
 	validator.runners = make(map[string]pairing)
+
+	return validator
+}
+
+// TODO figure out why when using this function that run .Kind() on any values passed to rules returns a struct
+// it does not happen when doing this normally through the New() and Add() methods
+func FromStructTags(structure any) Validator {
+	validator := New()
+
+	t := reflect.TypeOf(structure)
+	v := reflect.ValueOf(structure)
+
+	for i := 0; i < t.NumField(); i++ {
+		tagFull := t.Field(i).Tag.Get(TAG_VALIDATE)
+		tags := strings.Split(tagFull, SEPARATOR)
+
+		for _, tag := range tags {
+			fieldName := t.Field(i).Name
+			fieldValue := v.Field(i)
+
+			switch {
+			case strings.Contains(tag, SUBTAG_REQUIRED):
+				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_REQUIRED, fieldName)
+				validator.Add(fieldName, fieldValue, ValidateRequired)
+
+			case strings.Contains(tag, SUBTAG_PRESENCE):
+				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_PRESENCE, fieldName)
+				validator.Add(fieldName, fieldValue, ValidatePresence)
+
+			case strings.Contains(tag, SUBTAG_MIN):
+				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_MIN, fieldName)
+				validator.Add(fieldName, fieldValue, ValidateMinLength(2))
+
+			case strings.Contains(tag, SUBTAG_MAX):
+				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_MAX, fieldName)
+				validator.Add(fieldName, fieldValue, ValidateMaxLength(32))
+
+			case strings.Contains(tag, SUBTAG_EMAIL):
+				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_EMAIL, fieldName)
+			default:
+				//fmt.Printf("unknown rule request for value: %v\n", fieldName)
+			}
+		}
+	}
 
 	return validator
 }
