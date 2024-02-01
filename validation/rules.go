@@ -10,8 +10,7 @@ func ValidateRequired(field string, value any) error {
 		return fmt.Errorf("%s can't be nil", field)
 	}
 
-	val := reflect.ValueOf(value)
-	switch val.Kind() {
+	switch val := unwrapReflectValue(value); val.Kind() {
 	case reflect.String:
 		if val.Len() == 0 || value.(string) == "" {
 			return fmt.Errorf("%s can't be blank", field)
@@ -35,8 +34,7 @@ func ValidatePresence(field string, value any) error {
 		return fmt.Errorf("%s can't be nil", field)
 	}
 
-	val := reflect.ValueOf(value)
-	switch val.Kind() {
+	switch val := unwrapReflectValue(value); val.Kind() {
 	case reflect.String:
 		if val.Len() == 0 {
 			return fmt.Errorf("%s can't be blank", field)
@@ -57,12 +55,8 @@ func ValidatePresence(field string, value any) error {
 
 func ValidateMinLength(min int) Rule {
 	return func(field string, value any) error {
-		fmt.Println(field, value, reflect.ValueOf(value), reflect.ValueOf(value).Kind())
-
-		val := reflect.ValueOf(value)
-		switch val.Kind() {
+		switch val := unwrapReflectValue(value); val.Kind() {
 		case reflect.String, reflect.Array, reflect.Slice, reflect.Map:
-			fmt.Println("in case")
 			if val.Len() < min {
 				return fmt.Errorf("value { %+v } is shorter than the minimum of %+v", val, min)
 			}

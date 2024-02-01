@@ -6,9 +6,9 @@ import (
 )
 
 type User struct {
-	Id    int    `validate:"-"`
+	Id    int    `validate:"required"`
 	Name  string `validate:"min=2"`
-	Email string `validate:"-"`
+	Email string `validate:"required"`
 }
 
 func main() {
@@ -59,10 +59,14 @@ func main() {
 	//	fmt.Println("here")
 	//}
 
-	//v := validation.New()
-	//v.Add("test", "here", validation.ValidateMinLength(5))
-	//err := v.Validate()
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
+	v = validation.New()
+	v.Add("test", "normal add", validation.ValidateMinLength(5))
+	err = v.Validate()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//v := reflect.ValueOf("test")
+	//i := reflect.Indirect(reflect.ValueOf(v))
+	//fmt.Println(v, i)
 }

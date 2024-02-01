@@ -29,15 +29,13 @@ func New() Validator {
 	return validator
 }
 
-// TODO figure out why when using this function that run .Kind() on any values passed to rules returns a struct
-// it does not happen when doing this normally through the New() and Add() methods
 func FromStructTags(structure any) Validator {
 	validator := New()
 
 	t := reflect.TypeOf(structure)
 	v := reflect.ValueOf(structure)
 
-	for i := 0; i < t.NumField(); i++ {
+	for i := 0; i < t.NumField() && t.Field(i).IsExported(); i++ {
 		tagFull := t.Field(i).Tag.Get(TAG_VALIDATE)
 		tags := strings.Split(tagFull, SEPARATOR)
 
