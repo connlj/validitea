@@ -3,6 +3,7 @@ package validation
 import (
 	"golang.org/x/sync/errgroup"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -37,30 +38,33 @@ func FromStructTags(structure any) Validator {
 
 	for i := 0; i < t.NumField() && t.Field(i).IsExported(); i++ {
 		tagFull := t.Field(i).Tag.Get(TAG_VALIDATE)
-		tags := strings.Split(tagFull, SEPARATOR)
+		tags := strings.Split(tagFull, COMMA_SEPARATOR)
 
 		for _, tag := range tags {
 			fieldName := t.Field(i).Name
 			fieldValue := v.Field(i)
 
+			prefix, suffix, found := strings.Cut(tag, EQUAL_SEPARATOR)
 			switch {
-			case strings.Contains(tag, SUBTAG_REQUIRED):
+			case prefix == SUBTAG_REQUIRED:
 				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_REQUIRED, fieldName)
 				validator.Add(fieldName, fieldValue, ValidateRequired)
 
-			case strings.Contains(tag, SUBTAG_PRESENCE):
+			case prefix == SUBTAG_PRESENCE:
 				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_PRESENCE, fieldName)
 				validator.Add(fieldName, fieldValue, ValidatePresence)
 
-			case strings.Contains(tag, SUBTAG_MIN):
+			case prefix == SUBTAG_MIN && found:
 				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_MIN, fieldName)
-				validator.Add(fieldName, fieldValue, ValidateMinLength(2))
+				min, _ := strconv.Atoi(suffix)
+				validator.Add(fieldName, fieldValue, ValidateMinLength(min))
 
-			case strings.Contains(tag, SUBTAG_MAX):
+			case prefix == SUBTAG_MAX && found:
 				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_MAX, fieldName)
-				validator.Add(fieldName, fieldValue, ValidateMaxLength(32))
+				max, _ := strconv.Atoi(suffix)
+				validator.Add(fieldName, fieldValue, ValidateMaxLength(max))
 
-			case strings.Contains(tag, SUBTAG_EMAIL):
+			case prefix == SUBTAG_EMAIL:
 				//fmt.Printf("\tadding %v rule for value: %v\n", SUBTAG_EMAIL, fieldName)
 			default:
 				//fmt.Printf("unknown rule request for value: %v\n", fieldName)

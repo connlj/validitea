@@ -7,7 +7,7 @@ import (
 
 type User struct {
 	Id    int    `validate:"required"`
-	Name  string `validate:"min=2"`
+	Name  string `validate:"min=2,max=10"`
 	Email string `validate:"required"`
 }
 
@@ -16,7 +16,7 @@ func main() {
 
 	user := User{
 		Id:    1,
-		Name:  "a",
+		Name:  "01234567891",
 		Email: "john@example",
 	}
 

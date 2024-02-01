@@ -10,4 +10,5 @@ const (
 	SUBTAG_EMAIL    = "max"
 )
 
-const SEPARATOR = ","
+const COMMA_SEPARATOR = ","
+const EQUAL_SEPARATOR = "="
