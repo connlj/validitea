@@ -16,7 +16,7 @@ func main() {
 
 	user := User{
 		Id:    1,
-		Name:  "01234567891",
+		Name:  "1",
 		Email: "john@example",
 	}
 
@@ -61,6 +61,7 @@ func main() {
 
 	v = validation.New()
 	v.Add("test", "normal add", validation.ValidateMinLength(5))
+	//v.Add("test", "no", validation.ValidateMinLength(5))
 	err = v.Validate()
 	if err != nil {
 		fmt.Println(err)
@@ -69,4 +70,9 @@ func main() {
 	//v := reflect.ValueOf("test")
 	//i := reflect.Indirect(reflect.ValueOf(v))
 	//fmt.Println(v, i)
+
+	//reflectValue := reflect.Indirect(reflect.ValueOf(value))
+	//for reflectValue.Kind() == reflect.Ptr || reflectValue.Kind() == reflect.Interface {
+	//	reflectValue = reflect.Indirect(reflectValue)
+	//}
 }

@@ -1,12 +1,19 @@
 package validation
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func unwrapReflectValue(v any) reflect.Value {
 	switch v.(type) {
 	case reflect.Value:
 		return reflect.Indirect(v.(reflect.Value))
 	default:
-		return reflect.ValueOf(v)
+		reflectValue := reflect.Indirect(reflect.ValueOf(v))
+		for reflectValue.Kind() == reflect.Ptr || reflectValue.Kind() == reflect.Interface {
+			reflectValue = reflect.Indirect(reflectValue)
+		}
+		return reflectValue
+
 	}
 }
